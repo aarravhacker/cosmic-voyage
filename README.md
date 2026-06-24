@@ -28,7 +28,7 @@ An immersive, scroll-driven 3D space experience built with Three.js. Explore a p
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/cosmic-voyage.git
+   git clone https://github.com/aarravhacker/cosmic-voyage.git
    cd cosmic-voyage
    ```
 
