@@ -7,12 +7,15 @@
 body {
     overflow: hidden;
     background: #000;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 #scene {
     display: block;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
 }
 
 .loading {
@@ -40,7 +43,89 @@ body {
     animation: pulse 1.5s ease infinite;
 }
 
+.credit {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.45);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    z-index: 50;
+    pointer-events: none;
+    text-transform: uppercase;
+}
+
+.scroll-hint {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.6;
+    animation: fadeInOut 3s ease infinite;
+}
+
+.scroll-hint.hidden {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.scroll-hint-text {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.scroll-arrow {
+    width: 16px;
+    height: 16px;
+    border-right: 1.5px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.4);
+    transform: rotate(45deg);
+    animation: bounce 1.5s ease infinite;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 0.3; }
     50% { opacity: 1; }
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translateY(0); }
+    50% { transform: rotate(45deg) translateY(5px); }
+}
+
+@media (max-width: 768px) {
+    .credit {
+        font-size: 0.6rem;
+        bottom: 10px;
+    }
+
+    .scroll-hint {
+        bottom: 40px;
+    }
+
+    .scroll-hint-text {
+        font-size: 0.55rem;
+    }
+}
+
+@media (max-height: 500px) {
+    .scroll-hint {
+        display: none;
+    }
 }

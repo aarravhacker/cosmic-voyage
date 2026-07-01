@@ -12,6 +12,18 @@
         <div class="loading-text">Loading Space...</div>
         <div id="error-display" style="color:#ff4444;font-family:monospace;font-size:11px;padding:10px;max-width:80vw;word-break:break-all;display:none;"></div>
     </div>
+    <div class="credit">Created by <strong>Aarav Hacker</strong></div>
+    <div class="scroll-hint" id="scroll-hint">
+        <div class="scroll-hint-text">Scroll to explore</div>
+        <div class="scroll-arrow"></div>
+    </div>
     <script type="module" src="main.js"></script>
+    <script>
+        const hint = document.getElementById('scroll-hint');
+        let hidden = false;
+        function hideHint() { if (!hidden) { hint.classList.add('hidden'); hidden = true; } }
+        window.addEventListener('wheel', hideHint, { once: true, passive: true });
+        window.addEventListener('touchstart', hideHint, { once: true, passive: true });
+    </script>
 </body>
 </html>
