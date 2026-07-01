@@ -6,6 +6,12 @@ An immersive, scroll-driven 3D space experience built with Three.js. Explore a p
 
 ---
 
+## Preview
+
+<video src="preview.mp4" controls width="100%"></video>
+
+> *Scroll through Earth orbit, past the space station, and into the dimensional wormhole.*
+
 ## Features
 
 - **Procedural Planet** — Earth-like world with multi-octave noise terrain, oceans, mountains, ice caps, deserts, clouds, storms, atmosphere layers, and city lights on the night side

@@ -7,8 +7,8 @@ export function createPortal() {
         color: 0x444455,
         roughness: 0.3,
         metalness: 0.85,
-        emissive: 0x111120,
-        emissiveIntensity: 0.2,
+        emissive: 0x1122aa,
+        emissiveIntensity: 0.5,
         envMapIntensity: 2.0
     });
     const outerRing = new THREE.Mesh(
@@ -23,8 +23,8 @@ export function createPortal() {
         color: 0x333344,
         roughness: 0.25,
         metalness: 0.88,
-        emissive: 0x0a0a18,
-        emissiveIntensity: 0.15,
+        emissive: 0x0a22aa,
+        emissiveIntensity: 0.4,
         envMapIntensity: 1.8
     });
     const innerRing = new THREE.Mesh(
@@ -40,8 +40,8 @@ export function createPortal() {
             color: 0x555566,
             roughness: 0.35,
             metalness: 0.8,
-            emissive: 0x151525,
-            emissiveIntensity: 0.3
+            emissive: 0x2244cc,
+            emissiveIntensity: 0.5
         })
     );
     group.add(runeRing);
@@ -52,8 +52,8 @@ export function createPortal() {
             color: 0x444455,
             roughness: 0.4,
             metalness: 0.75,
-            emissive: 0x0a0a15,
-            emissiveIntensity: 0.2
+            emissive: 0x1133aa,
+            emissiveIntensity: 0.4
         })
     );
     group.add(runeRing2);
@@ -103,29 +103,29 @@ export function createPortal() {
                 float pattern=n1*0.6+swirl*0.25+n2*0.15;
 
                 vec3 deepBlack=vec3(0.005,0.005,0.015);
-                vec3 darkPurple=vec3(0.03,0.02,0.06);
-                vec3 dimBlue=vec3(0.02,0.03,0.06);
+                vec3 darkBlue=vec3(0.02,0.03,0.08);
+                vec3 dimCyan=vec3(0.01,0.04,0.1);
 
-                vec3 col=mix(deepBlack,darkPurple,pattern);
-                col=mix(col,dimBlue,n2*0.2);
+                vec3 col=mix(deepBlack,darkBlue,pattern);
+                col=mix(col,dimCyan,n2*0.2);
 
                 float edge=smoothstep(0.48,0.2,d);
                 float center=pow(max(1.0-d*2.8,0.0),8.0)*0.06;
-                col+=vec3(0.08,0.06,0.15)*center;
+                col+=vec3(0.05,0.1,0.25)*center;
 
                 float rim=smoothstep(0.48,0.32,d)*smoothstep(0.12,0.32,d);
                 float rimPulse=sin(uTime*1.0+d*4.0)*0.5+0.5;
-                col+=vec3(0.06,0.05,0.12)*rim*rimPulse*0.2;
+                col+=vec3(0.04,0.08,0.2)*rim*rimPulse*0.2;
 
                 float vortex=sin(angle*4.0+uTime*0.8+d*10.0)*0.5+0.5;
                 vortex=pow(vortex,8.0)*smoothstep(0.42,0.08,d)*0.08;
-                col+=vec3(0.06,0.04,0.12)*vortex;
+                col+=vec3(0.04,0.08,0.2)*vortex;
 
                 float singularity=pow(max(1.0-d*3.2,0.0),16.0);
-                col+=vec3(0.12,0.1,0.2)*singularity*0.15;
+                col+=vec3(0.08,0.12,0.25)*singularity*0.15;
 
                 float stars=step(0.998,fract(sin(dot(vUv*200.0,vec2(12.9898,78.233)))*43758.5453));
-                col+=vec3(0.15,0.15,0.2)*stars*edge*0.3;
+                col+=vec3(0.1,0.15,0.25)*stars*edge*0.3;
 
                 float alpha=smoothstep(0.48,0.25,d)*0.7;
                 alpha+=center*0.4;
@@ -163,7 +163,7 @@ export function createPortal() {
     }
     orbitGeo.setAttribute('position', new THREE.BufferAttribute(orbitPos, 3));
     const orbitParticles = new THREE.Points(orbitGeo, new THREE.PointsMaterial({
-        color: 0x6666aa, size: 0.06, transparent: true, opacity: 0.4,
+        color: 0x6688ff, size: 0.08, transparent: true, opacity: 0.5,
         blending: THREE.AdditiveBlending, depthWrite: false
     }));
     group.add(orbitParticles);
@@ -182,7 +182,7 @@ export function createPortal() {
     }
     innerGeo.setAttribute('position', new THREE.BufferAttribute(innerPos, 3));
     const innerParticles = new THREE.Points(innerGeo, new THREE.PointsMaterial({
-        color: 0x444477, size: 0.04, transparent: true, opacity: 0.25,
+        color: 0x4477cc, size: 0.05, transparent: true, opacity: 0.35,
         blending: THREE.AdditiveBlending, depthWrite: false
     }));
     group.add(innerParticles);
@@ -193,7 +193,7 @@ export function createPortal() {
         const beam = new THREE.Mesh(
             new THREE.CylinderGeometry(0.01, 0.01, 10, 4),
             new THREE.MeshBasicMaterial({
-                color: 0x333355, transparent: true, opacity: 0.08,
+                color: 0x4466cc, transparent: true, opacity: 0.12,
                 blending: THREE.AdditiveBlending, depthWrite: false
             })
         );
@@ -203,15 +203,15 @@ export function createPortal() {
         beams.push(beam);
     }
 
-    const portalLight = new THREE.PointLight(0x222244, 1.5, 35, 2);
+    const portalLight = new THREE.PointLight(0x3366dd, 2.0, 50, 2);
     portalLight.position.set(0, 0, 1);
     group.add(portalLight);
 
-    const portalLight2 = new THREE.PointLight(0x1a1a33, 1, 25, 2);
+    const portalLight2 = new THREE.PointLight(0x2255aa, 1.2, 40, 2);
     portalLight2.position.set(0, 0, -1);
     group.add(portalLight2);
 
-    const rimLight = new THREE.PointLight(0x333366, 0.8, 20, 2);
+    const rimLight = new THREE.PointLight(0x5588dd, 1.2, 30, 2);
     rimLight.position.set(3, 3, 0);
     group.add(rimLight);
 
