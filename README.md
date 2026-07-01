@@ -8,7 +8,7 @@ An immersive, scroll-driven 3D space experience built with Three.js. Explore a p
 
 ## Preview
 
-https://github.com/aarravhacker/cosmic-voyage/raw/main/preview.mp4
+![Cosmic Voyage Preview](preview.gif)
 
 > *Scroll through Earth orbit, past the space station, and into the dimensional wormhole.*
 
