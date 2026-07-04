@@ -212,7 +212,7 @@ export function createEarthDetailScene() {
 
         <div class="wl-hero">
             <div class="wl-hello">Hello, I'm</div>
-            <div class="wl-name">AARU</div>
+            <div class="wl-name">AARAV</div>
             <div class="wl-subtitle">Developer &amp; Tech Enthusiast</div>
 
             <div class="wl-section">

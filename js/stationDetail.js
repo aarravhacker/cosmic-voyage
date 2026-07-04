@@ -160,7 +160,7 @@ export function createStationDetailScene() {
         <div class="sl-header"><div class="sl-dot"></div><div class="sl-title">System // Profile</div></div>
         <div class="sl-section">
             <div class="sl-section-title">Identity</div>
-            <ul class="sl-list"><li>Name: Aaru</li><li>Role: Developer</li><li>Location: India</li></ul>
+            <ul class="sl-list"><li>Name: Aarav Hacker</li><li>Role: Developer</li><li>Location: India</li></ul>
         </div>
         <div class="sl-section">
             <div class="sl-section-title">Status</div>
