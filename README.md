@@ -1,6 +1,6 @@
-# Cosmic Voyage — Interactive 3D Space Scene
+# Aaru's 3D Portfolio — Interactive Space Experience
 
-An immersive, scroll-driven 3D space experience built with Three.js. Explore a procedurally generated planet with realistic terrain, clouds, and city lights. Fly past a detailed space station, watch a spaceship streak by, and peer into a mysterious dimensional portal — all controlled by scrolling.
+An immersive, scroll-driven 3D space portfolio built with Three.js. Click on the Earth to view my resume and skills, or click the Space Station to explore my projects and contact info.
 
 **All models and code are created by me.**
 
@@ -8,24 +8,21 @@ An immersive, scroll-driven 3D space experience built with Three.js. Explore a p
 
 ## Preview
 
-![Cosmic Voyage Preview](preview.gif)
+![Portfolio Preview](preview.gif)
 
-> *Scroll through Earth orbit, past the space station, and into the dimensional wormhole.*
+> *Scroll through Earth orbit, past the space station, and click objects to explore my portfolio.*
 
 ## Features
 
-- **Procedural Planet** — Earth-like world with multi-octave noise terrain, oceans, mountains, ice caps, deserts, clouds, storms, atmosphere layers, and city lights on the night side
-- **Space Station** — Detailed modular station with 6 arms, solar panels, antenna arrays, blinking nav lights, docking ports, and thruster nozzles
-- **Spaceship** — Animated ship with glowing engines, shader-based exhaust trails, navigation lights, and a particle trail effect
-- **Dimensional Portal** — Vortex shader with orbital particles, rune rings, energy beams, and ambient glow
-- **Animated Sun** — Procedural shader sun with solar flares, corona glow, and dynamic lighting
-- **Asteroid Belt** — Orbiting asteroids around the planet
-- **Nebula Background** — Deep space nebula layers with additive blending
-- **Dust Particles** — Floating space dust with shader-based rendering
-- **Scroll-Driven Camera** — Smooth keyframe-based camera path with wheel and touch input, looping back to the start
-- **Post-Processing Pipeline** — Bloom, film grain, chromatic aberration, vignette, depth of field, and motion blur
-- **Proximity VFX** — Particle effects that intensify as the camera approaches Earth, the station, or the portal
-- **Full Lighting Setup** — Directional sun, ambient, hemisphere, rim, fill, and portal glow lights with shadow mapping
+- **Interactive 3D Scene** — Click Earth for resume, click Station for projects & contact
+- **Glassmorphism UI Panels** — Sleek overlay panels with blur effects
+- **Procedural Planet** — Earth-like world with terrain, clouds, atmosphere, and city lights
+- **Space Station** — Detailed modular station with solar panels, lights, and docking ports
+- **Spaceship** — Animated ship with glowing engines and exhaust trails
+- **Animated Sun** — Procedural shader sun with solar flares and corona
+- **Scroll-Driven Camera** — Smooth keyframe path with wheel and touch input
+- **Post-Processing Pipeline** — Bloom, film grain, chromatic aberration, vignette, and motion blur
+- **Hover Feedback** — Cursor changes to pointer when hovering clickable objects
 
 ---
 
@@ -57,8 +54,10 @@ An immersive, scroll-driven 3D space experience built with Three.js. Explore a p
 ## Usage
 
 - **Scroll** (mouse wheel) or **swipe** (touch) to navigate through the scene
-- The camera follows a pre-defined cinematic path: Earth orbit → Space station → Dimensional portal
-- The scene loops automatically when you reach the end
+- **Click Earth** to open my resume panel (skills, interests, goals, hardware)
+- **Click Space Station** to open projects & contact panel
+- **Close panels** by clicking X, clicking the backdrop, or pressing Escape
+- The scene loops automatically after orbiting the station
 
 ---
 
@@ -68,19 +67,8 @@ An immersive, scroll-driven 3D space experience built with Three.js. Explore a p
 |---|---|
 | **Three.js** | 3D rendering engine |
 | **Vite** | Build tool and dev server |
-| **GLSL Shaders** | Custom planet terrain, clouds, atmosphere, portal vortex, sun surface, exhaust trails, and post-processing effects |
+| **GLSL Shaders** | Custom planet terrain, clouds, atmosphere, sun surface, exhaust trails, and post-processing |
 | **JavaScript (ES Modules)** | Modular codebase |
-
----
-
-## Future Improvements
-
-- [ ] Add sound effects and ambient space audio
-- [ ] Implement interactive controls (WASD / mouse look)
-- [ ] Add more celestial objects (rings, moons, comets)
-- [ ] Mobile performance optimizations
-- [ ] Loading progress bar instead of simple loading text
-- [ ] Add a HUD / UI overlay with scene information
 
 ---
 

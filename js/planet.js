@@ -346,7 +346,7 @@ export function createPlanet() {
         depthWrite: false,
         blending: THREE.NormalBlending
     });
-    const clouds = new THREE.Mesh(new THREE.SphereGeometry(5.08, 96, 96), cloudMat);
+    const clouds = new THREE.Mesh(new THREE.SphereGeometry(5.08, 128, 96), cloudMat);
     group.add(clouds);
 
     const atmoMat = new THREE.ShaderMaterial({
@@ -393,7 +393,7 @@ export function createPlanet() {
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
-    group.add(new THREE.Mesh(new THREE.SphereGeometry(5.25, 64, 64), atmoMat));
+    group.add(new THREE.Mesh(new THREE.SphereGeometry(5.25, 96, 64), atmoMat));
 
     const outerAtmoMat = new THREE.ShaderMaterial({
         uniforms: {
@@ -430,7 +430,7 @@ export function createPlanet() {
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
-    group.add(new THREE.Mesh(new THREE.SphereGeometry(5.55, 32, 32), outerAtmoMat));
+    group.add(new THREE.Mesh(new THREE.SphereGeometry(5.55, 64, 48), outerAtmoMat));
 
     return { group, mesh, planetMat, clouds, cloudMat };
 }

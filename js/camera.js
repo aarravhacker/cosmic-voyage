@@ -1,42 +1,30 @@
 const keyframes = [
-  // Earth orbit - front
-  { pos: [0, 4, 0], lookAt: [0, 0, -20], fov: 55 },
-  // Earth orbit - right
-  { pos: [18, 5, -20], lookAt: [0, 0, -20], fov: 52 },
-  // Earth orbit - behind
-  { pos: [0, 6, -40], lookAt: [0, 0, -20], fov: 50 },
-  // Earth orbit - left
-  { pos: [-18, 5, -20], lookAt: [0, 0, -20], fov: 52 },
-  // Earth orbit - front again
-  { pos: [0, 4, 0], lookAt: [0, 0, -20], fov: 55 },
+  // Earth orbit - close front
+  { pos: [0, 3, 5], lookAt: [0, 0, -20], fov: 40 },
+  // Earth orbit - close right
+  { pos: [12, 4, -15], lookAt: [0, 0, -20], fov: 38 },
+  // Earth orbit - behind (wide)
+  { pos: [0, 5, -40], lookAt: [0, 0, -20], fov: 42 },
+  // Earth orbit - close left
+  { pos: [-12, 3, -15], lookAt: [0, 0, -20], fov: 38 },
+  // Earth orbit - close front again
+  { pos: [0, 3, 5], lookAt: [0, 0, -20], fov: 40 },
   // Fly towards station
-  { pos: [40, 18, -75], lookAt: [70, 20, -108], fov: 52 },
-  // Station - wide view from front
-  { pos: [60, 30, -90], lookAt: [80, 20, -120], fov: 52 },
-  // Station - orbit right (distant)
-  { pos: [115, 32, -108], lookAt: [80, 20, -120], fov: 52 },
-  // Station - orbit back-right (distant)
-  { pos: [115, 30, -140], lookAt: [80, 20, -120], fov: 52 },
-  // Station - orbit behind (distant)
-  { pos: [80, 32, -158], lookAt: [80, 20, -120], fov: 52 },
-  // Station - orbit back-left (distant)
-  { pos: [45, 30, -140], lookAt: [80, 20, -120], fov: 52 },
-  // Station - orbit left (distant)
-  { pos: [45, 32, -108], lookAt: [80, 20, -120], fov: 52 },
-  // Station - back to front
-  { pos: [60, 30, -90], lookAt: [80, 20, -120], fov: 52 },
-  // Fly from station to portal
-  { pos: [30, 14, -95], lookAt: [0, 8, -82], fov: 52 },
-  // Portal approach
-  { pos: [-5, 7, -70], lookAt: [-30, 5, -80], fov: 48 },
-  // Portal closeup outside
-  { pos: [-18, 6, -68], lookAt: [-30, 5, -80], fov: 42 },
-  // Portal final closeup
-  { pos: [-22, 5.5, -70], lookAt: [-30, 5, -80], fov: 38 },
-  // Portal inside - deep
-  { pos: [-28, 5, -76], lookAt: [-32, 5, -82], fov: 32 },
-  // Portal center - loop triggers here
-  { pos: [-30, 5, -80], lookAt: [-34, 5, -84], fov: 28 },
+  { pos: [35, 16, -70], lookAt: [75, 18, -110], fov: 38 },
+  // Station - close front
+  { pos: [55, 25, -85], lookAt: [80, 20, -120], fov: 36 },
+  // Station - orbit right close
+  { pos: [105, 26, -105], lookAt: [80, 20, -120], fov: 36 },
+  // Station - orbit back-right
+  { pos: [105, 24, -140], lookAt: [80, 20, -120], fov: 38 },
+  // Station - orbit behind
+  { pos: [80, 26, -160], lookAt: [80, 20, -120], fov: 38 },
+  // Station - orbit back-left
+  { pos: [50, 24, -140], lookAt: [80, 20, -120], fov: 38 },
+  // Station - orbit left close
+  { pos: [50, 26, -105], lookAt: [80, 20, -120], fov: 36 },
+  // Station - back to front (loops)
+  { pos: [55, 25, -85], lookAt: [80, 20, -120], fov: 36 },
 ];
 
 let cameraProgress = 0;
@@ -44,10 +32,28 @@ let targetScrollProgress = 0;
 const WHEEL_SENSITIVITY = 0.08;
 const TOUCH_SENSITIVITY = 0.12;
 const CAMERA_SPEED = 36;
+let scrollPaused = false;
+let flyInMode = false;
 
-let currentPos = [0, 4, 0];
+export function setScrollPaused(paused) {
+  scrollPaused = paused;
+}
+
+export function setFlyInMode(enabled) {
+  flyInMode = enabled;
+}
+
+export function getCameraState() {
+  return {
+    position: [...currentPos],
+    lookAt: [...currentLookAt],
+    fov: currentFov,
+  };
+}
+
+let currentPos = [0, 3, 5];
 let currentLookAt = [0, 0, -20];
-let currentFov = 55;
+let currentFov = 40;
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
@@ -93,6 +99,7 @@ function dampVec3(current, target, factor) {
 }
 
 function onWheel(e) {
+  if (scrollPaused) return;
   if (e.deltaY > 0) targetScrollProgress += WHEEL_SENSITIVITY;
   else targetScrollProgress -= WHEEL_SENSITIVITY;
 }
@@ -104,6 +111,7 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
+  if (scrollPaused) return;
   const dy = touchStartY - e.touches[0].clientY;
   touchStartY = e.touches[0].clientY;
   if (dy > 0) targetScrollProgress += TOUCH_SENSITIVITY;
@@ -117,6 +125,8 @@ export function initScroll() {
 }
 
 export function updateCamera(camera, time) {
+  if (flyInMode) return;
+
   const maxProgress = keyframes.length - 1;
 
   if (cameraProgress >= maxProgress) {
@@ -140,6 +150,12 @@ export function updateCamera(camera, time) {
   camera.lookAt(currentLookAt[0], currentLookAt[1], currentLookAt[2]);
   camera.fov = currentFov;
   camera.updateProjectionMatrix();
+}
+
+export function setCurrentCameraState(pos, lookAt, fov) {
+  currentPos = [...pos];
+  currentLookAt = [...lookAt];
+  currentFov = fov;
 }
 
 export function getScrollProgress() {

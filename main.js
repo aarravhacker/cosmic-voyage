@@ -17,7 +17,6 @@ try {
     const { createRings, animateRings } = await import('./js/rings.js');
     const { createAsteroids, animateAsteroids } = await import('./js/asteroids.js');
     const { createStation, animateStation } = await import('./js/station.js');
-    const { createPortal, animatePortal } = await import('./js/portal.js');
     const { createShip, animateShip } = await import('./js/ship.js');
     const { createSun, animateSun } = await import('./js/sun.js');
     const { createDust, animateDust } = await import('./js/dust.js');
@@ -34,10 +33,10 @@ try {
     createLights(scene);
     createEnvMap(renderer, scene);
 
-    const { composer, bloomPass, filmPass } = createPostProcessing(renderer, scene, camera);
+    const { composer, filmPass } = createPostProcessing(renderer, scene, camera);
 
     const stars = createStars();
-    scene.add(stars);
+    scene.add(stars.group);
 
     const shootingStars = createShootingStars();
     scene.add(shootingStars.group);
@@ -57,9 +56,6 @@ try {
     const station = createStation();
     scene.add(station);
 
-    const portal = createPortal();
-    scene.add(portal.group);
-
     const ship = createShip();
     scene.add(ship);
 
@@ -74,11 +70,9 @@ try {
 
     initScroll();
 
-    const prevCamPos = new THREE.Vector3();
-    prevCamPos.copy(camera.position);
-    const prevCamDir = new THREE.Vector3();
-    camera.getWorldDirection(prevCamDir);
-    let prevScroll = 0;
+    // ============================================
+    // RESIZE
+    // ============================================
 
     window.addEventListener('resize', function() {
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -86,6 +80,16 @@ try {
         renderer.setSize(window.innerWidth, window.innerHeight);
         composer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    // ============================================
+    // ANIMATION LOOP
+    // ============================================
+
+    const prevCamPos = new THREE.Vector3();
+    prevCamPos.copy(camera.position);
+    const prevCamDir = new THREE.Vector3();
+    camera.getWorldDirection(prevCamDir);
+    let prevScroll = 0;
 
     const clock = new THREE.Clock();
     let lastTime = 0;
@@ -111,7 +115,6 @@ try {
         prevCamDir.copy(currentDir);
 
         const motionIntensity = Math.min(camDelta * 3.0 + scrollDelta * 10.0 + dirDelta.length() * 2.0, 1.0);
-
         const projDir = new THREE.Vector2(dirDelta.x, dirDelta.y).normalize();
         if (filmPass) {
             filmPass.uniforms.motionBlur.value = motionIntensity;
@@ -125,7 +128,6 @@ try {
         animateRings(rings);
         animateAsteroids(asteroids);
         animateStation(station, t);
-        animatePortal(portal, t, camera);
         animateShip(ship, t);
         animateSun(sunData, t);
         animateDust(dust, t);

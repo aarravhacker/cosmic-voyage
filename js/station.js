@@ -75,37 +75,35 @@ function buildArm(group, angle, length, mat, detailMat, redMat, normalMap, wearM
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
 
-    for (let i = 0; i < 6; i++) {
-        const t = (i + 0.5) / 6;
-        const px = cos * length * t;
-        const pz = sin * length * t;
-        addBox(group, 0.3, 0.2, 0.3, px, 0, pz, detailMat);
-    }
+    // Arm spine
+    addBox(group, 0.5, 0.35, length, cos * length * 0.5, 0, sin * length * 0.5, mat, angle);
 
-    addBox(group, 0.6, 0.4, length, cos * length * 0.5, 0, sin * length * 0.5, mat, angle);
+    // Arm upper plate
+    addBox(group, 0.35, 0.12, length * 0.6, cos * length * 0.5, 0.25, sin * length * 0.5, detailMat, angle);
 
-    addBox(group, 0.4, 0.15, length * 0.6, cos * length * 0.5, 0.3, sin * length * 0.5, detailMat, angle);
-
+    // Antenna masts along arm
     for (let i = 0; i < 3; i++) {
         const t = 0.3 + i * 0.25;
         const px = cos * length * t;
         const pz = sin * length * t;
-        addBox(group, 0.1, 0.6, 0.1, px, 0.4, pz, mat);
-        addBox(group, 0.15, 0.3, 0.02, px, 0.7, pz, redMat);
+        addBox(group, 0.08, 0.5, 0.08, px, 0.35, pz, mat);
+        addBox(group, 0.12, 0.25, 0.02, px, 0.6, pz, redMat);
     }
 
+    // Arm tip module
     const tipX = cos * length;
     const tipZ = sin * length;
-    addBox(group, 0.8, 0.5, 0.6, tipX, 0, tipZ, detailMat, angle);
-    addBox(group, 0.5, 0.3, 0.4, tipX, 0.4, tipZ, mat);
-    addSphere(group, 0.15, 8, 8, tipX, 0.7, tipZ, redMat);
-    addSphere(group, 0.12, 8, 8, tipX, -0.3, tipZ, makeMat(0x00ff88, 0.2, 0.1, { emissive: 0x00ff88, ei: 2.0 }));
+    addBox(group, 0.7, 0.4, 0.5, tipX, 0, tipZ, detailMat, angle);
+    addBox(group, 0.4, 0.25, 0.35, tipX, 0.35, tipZ, mat);
+    addSphere(group, 0.12, 16, 8, tipX, 0.6, tipZ, redMat);
+    addSphere(group, 0.1, 16, 8, tipX, -0.25, tipZ, makeMat(0x00ff88, 0.2, 0.1, { emissive: 0x00ff88, ei: 2.0 }));
 
+    // Solar panels on arm
     for (let i = 0; i < 2; i++) {
         const sx = cos * length * (0.4 + i * 0.35);
         const sz = sin * length * (0.4 + i * 0.35);
-        addBox(group, 1.2, 0.03, 0.6, sx, 0.5, sz, makeMat(0x2244aa, 0.95, 0.15, { emissive: 0x112233, ei: 0.3, normal: normalMap, wear: wearMap, env: 2.5 }), angle);
-        addBox(group, 1.3, 0.05, 0.65, sx, 0.48, sz, mat, angle);
+        addBox(group, 1.1, 0.03, 0.55, sx, 0.45, sz, makeMat(0x2244aa, 0.95, 0.15, { emissive: 0x112233, ei: 0.3, normal: normalMap, wear: wearMap, env: 2.5 }), angle);
+        addBox(group, 1.2, 0.04, 0.6, sx, 0.43, sz, mat, angle);
     }
 }
 
@@ -114,7 +112,7 @@ function buildModule(group, x, y, z, w, h, d, mat, detailMat) {
     addBox(group, w * 0.8, h * 0.1, d * 0.8, x, y + h / 2 + 0.02, z, detailMat);
     addBox(group, w * 0.8, h * 0.1, d * 0.8, x, y - h / 2 - 0.02, z, detailMat);
     for (let i = 0; i < 3; i++) {
-        addBox(group, 0.02, h * 0.6, 0.02, x - w / 3 + (i * w / 3), y, z + d / 2 + 0.01, detailMat);
+        addBox(group, 0.02, h * 0.5, 0.02, x - w / 3 + (i * w / 3), y, z + d / 2 + 0.01, detailMat);
     }
 }
 
@@ -135,41 +133,44 @@ export function createStation() {
     const orangeMat = makeMat(0xee8855, 0.7, 0.4, { emissive: 0x663311, ei: 0.5, env: 2.5 });
     const panelMat = makeMat(0x4466cc, 0.95, 0.15, { emissive: 0x223366, ei: 0.5, emissiveMap: emissiveMap, normal: normalMap, wear: wearMap, side: THREE.DoubleSide, env: 4.0 });
     const glowMat = makeMat(0x66eeff, 0.3, 0.1, { emissive: 0x44aadd, ei: 2.5 });
-    const whiteMat = makeMat(0xeeeeff, 0.8, 0.3, { normal: normalMap, wear: wearMap, emissive: 0x111122, ei: 0.1, env: 3.0 });
     const thrusterMat = makeMat(0x444444, 0.85, 0.6, { normal: normalMap, wear: wearMap, emissive: 0xff6622, ei: 0.8 });
     const hullMat = makeMat(0x667788, 0.92, 0.35, { normal: normalMap, wear: wearMap, colormap: colorMap, emissive: 0x0a1018, ei: 0.1, env: 3.0 });
 
-    // === CENTRAL HUB - tiered cylinders ===
-    addCyl(group, 2.5, 2.5, 1.2, 24, 0, 0, 0, hullMat);
-    addCyl(group, 2.8, 2.8, 0.4, 24, 0, 0.8, 0, darkMat);
-    addCyl(group, 2.0, 2.0, 0.6, 20, 0, -0.9, 0, lightMat);
-    addCyl(group, 1.5, 1.5, 0.5, 16, 0, 1.3, 0, mainMat);
-    addCyl(group, 1.0, 1.0, 0.4, 12, 0, -1.5, 0, darkMat);
-    addCyl(group, 0.7, 0.7, 0.8, 10, 0, 1.9, 0, lightMat);
-    addCyl(group, 0.5, 0.5, 0.6, 8, 0, -2.0, 0, rodMat);
+    // === CENTRAL HUB ===
+    addCyl(group, 2.5, 2.5, 1.2, 48, 0, 0, 0, hullMat);
+    addCyl(group, 2.8, 2.8, 0.4, 48, 0, 0.8, 0, darkMat);
+    addCyl(group, 2.0, 2.0, 0.6, 40, 0, -0.9, 0, lightMat);
+    addCyl(group, 1.5, 1.5, 0.5, 32, 0, 1.3, 0, mainMat);
+    addCyl(group, 1.0, 1.0, 0.4, 24, 0, -1.5, 0, darkMat);
+    addCyl(group, 0.7, 0.7, 0.8, 20, 0, 1.9, 0, lightMat);
+    addCyl(group, 0.5, 0.5, 0.6, 16, 0, -2.0, 0, rodMat);
 
-    // Top tower
-    addCyl(group, 0.4, 0.5, 1.5, 8, 0, 2.8, 0, darkMat);
-    addCyl(group, 0.3, 0.3, 0.8, 8, 0, 3.8, 0, mainMat);
-    addCyl(group, 0.2, 0.2, 1.0, 6, 0, 4.6, 0, rodMat);
-    addSphere(group, 0.35, 10, 10, 0, 5.3, 0, mainMat);
+    // Hub detail rings
+    addTorus(group, 2.55, 0.04, 12, 48, 0, 0.3, 0, darkMat, Math.PI / 2, 0, 0);
+    addTorus(group, 2.55, 0.04, 12, 48, 0, -0.3, 0, darkMat, Math.PI / 2, 0, 0);
 
-    // Bottom tower
-    addCyl(group, 0.4, 0.5, 1.2, 8, 0, -2.8, 0, darkMat);
-    addCyl(group, 0.3, 0.3, 0.6, 8, 0, -3.5, 0, mainMat);
+    // === TOP TOWER ===
+    addCyl(group, 0.4, 0.5, 1.5, 24, 0, 2.8, 0, darkMat);
+    addCyl(group, 0.3, 0.3, 0.8, 20, 0, 3.8, 0, mainMat);
+    addCyl(group, 0.2, 0.2, 1.0, 16, 0, 4.6, 0, rodMat);
+    addSphere(group, 0.35, 32, 16, 0, 5.3, 0, mainMat);
 
-    // Thruster nozzles
+    // === BOTTOM TOWER ===
+    addCyl(group, 0.4, 0.5, 1.2, 24, 0, -2.8, 0, darkMat);
+    addCyl(group, 0.3, 0.3, 0.6, 20, 0, -3.5, 0, mainMat);
+
+    // === THRUSTERS ===
     const thrusterAngles = [Math.PI * 0.25, Math.PI * 0.75, Math.PI * 1.25, Math.PI * 1.75];
     thrusterAngles.forEach(function(a) {
         const tx = Math.cos(a) * 1.8;
         const tz = Math.sin(a) * 1.8;
-        addCyl(group, 0.4, 0.25, 0.6, 12, tx, -2.3, tz, thrusterMat);
-        addCyl(group, 0.25, 0.35, 0.15, 12, tx, -2.65, tz, makeMat(0xff8833, 0.7, 0.3, { emissive: 0xff4400, ei: 1.5 }));
+        addCyl(group, 0.4, 0.25, 0.6, 24, tx, -2.3, tz, thrusterMat);
+        addCyl(group, 0.25, 0.35, 0.15, 24, tx, -2.65, tz, makeMat(0xff8833, 0.7, 0.3, { emissive: 0xff4400, ei: 1.5 }));
     });
 
     // === MAIN RING ===
-    addTorus(group, 3.5, 0.18, 10, 48, 0, 0, 0, mainMat, Math.PI / 2, 0, 0);
-    addTorus(group, 3.2, 0.08, 8, 36, 0, 0, 0, darkMat, Math.PI / 2, 0, 0);
+    addTorus(group, 3.5, 0.18, 24, 96, 0, 0, 0, mainMat, Math.PI / 2, 0, 0);
+    addTorus(group, 3.2, 0.08, 16, 72, 0, 0, 0, darkMat, Math.PI / 2, 0, 0);
 
     // Ring supports
     for (let i = 0; i < 8; i++) {
@@ -191,40 +192,36 @@ export function createStation() {
     longArmAngles.forEach(function(angle) {
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
-        for (let i = 0; i < 8; i++) {
-            const t = (i + 0.5) / 8;
-            const px = cos * 14 * t;
-            const pz = sin * 14 * t;
-            addBox(group, 0.2, 0.15, 0.2, px, 0, pz, rodMat);
-        }
-        addBox(group, 0.5, 0.35, 12, cos * 7, 0, sin * 7, armMat, angle);
 
-        // Truss structure
+        // Arm spine
+        addBox(group, 0.4, 0.3, 12, cos * 7, 0, sin * 7, armMat, angle);
+
+        // Truss supports
         for (let i = 0; i < 4; i++) {
             const t = 0.2 + i * 0.2;
             const px = cos * 14 * t;
             const pz = sin * 14 * t;
-            addBox(group, 0.08, 0.8, 0.08, px, 0.5, pz, rodMat);
-            addBox(group, 0.08, 0.8, 0.08, px, -0.5, pz, rodMat);
-            addBox(group, 0.6, 0.06, 0.06, px, 0.5, pz, lightMat, 0, angle);
-            addBox(group, 0.6, 0.06, 0.06, px, -0.5, pz, lightMat, 0, angle);
+            addBox(group, 0.06, 0.7, 0.06, px, 0.45, pz, rodMat);
+            addBox(group, 0.06, 0.7, 0.06, px, -0.45, pz, rodMat);
+            addBox(group, 0.5, 0.05, 0.05, px, 0.45, pz, lightMat, 0, angle);
+            addBox(group, 0.5, 0.05, 0.05, px, -0.45, pz, lightMat, 0, angle);
         }
 
         // End module
         const tipX = cos * 14;
         const tipZ = sin * 14;
-        addBox(group, 1.5, 0.8, 1.0, tipX, 0, tipZ, darkMat, angle);
-        addBox(group, 1.2, 0.6, 0.8, tipX, 0.6, tipZ, mainMat, angle);
-        addBox(group, 0.8, 0.3, 0.6, tipX, 1.0, tipZ, lightMat, angle);
-        addSphere(group, 0.2, 8, 8, tipX, 1.2, tipZ, glowMat);
+        addBox(group, 1.3, 0.7, 0.9, tipX, 0, tipZ, darkMat, angle);
+        addBox(group, 1.0, 0.5, 0.7, tipX, 0.5, tipZ, mainMat, angle);
+        addBox(group, 0.7, 0.25, 0.5, tipX, 0.85, tipZ, lightMat, angle);
+        addSphere(group, 0.18, 16, 8, tipX, 1.0, tipZ, glowMat);
 
-        // Panels on long arms
+        // Solar panels on long arms
         for (let i = 0; i < 3; i++) {
             const pt = 0.25 + i * 0.25;
             const px = cos * 14 * pt;
             const pz = sin * 14 * pt;
-            addBox(group, 1.8, 0.03, 0.8, px, 0.9, pz, panelMat, angle);
-            addBox(group, 1.9, 0.04, 0.85, px, 0.88, pz, lightMat, angle);
+            addBox(group, 1.6, 0.03, 0.7, px, 0.8, pz, panelMat, angle);
+            addBox(group, 1.7, 0.04, 0.75, px, 0.78, pz, lightMat, angle);
         }
     });
 
@@ -243,29 +240,26 @@ export function createStation() {
         buildModule(group, p.x, p.y, p.z, p.w, p.h, p.d, darkMat, lightMat);
     });
 
-    // === RED/ORANGE ACCENT PANELS ===
+    // === ACCENT PANELS ===
     const accentPositions = [
         { x: 1.5, y: 0.65, z: 0, w: 0.8, d: 0.5, m: redMat },
         { x: -1.5, y: 0.65, z: 0, w: 0.7, d: 0.4, m: orangeMat },
         { x: 0, y: 0.65, z: 1.5, w: 0.6, d: 0.7, m: redMat },
         { x: 0, y: 0.65, z: -1.5, w: 0.5, d: 0.6, m: orangeMat },
-        { x: 1.0, y: -0.65, z: 1.0, w: 0.6, d: 0.4, m: redMat },
-        { x: -1.0, y: -0.65, z: -1.0, w: 0.5, d: 0.5, m: orangeMat },
     ];
     accentPositions.forEach(function(p) {
         addBox(group, p.w, 0.08, p.d, p.x, p.y, p.z, p.m);
     });
 
-    // === ANTENNA ARRAYS ===
-    // Tall antennas on top
-    addCyl(group, 0.04, 0.04, 2.5, 4, 1.0, 5.5, 0, rodMat);
-    addCyl(group, 0.04, 0.04, 2.0, 4, -0.8, 5.2, 0.5, rodMat);
-    addCyl(group, 0.03, 0.03, 1.8, 4, 0.3, 5.0, -0.8, rodMat);
+    // === ANTENNAS ===
+    addCyl(group, 0.04, 0.04, 2.5, 8, 1.0, 5.5, 0, rodMat);
+    addCyl(group, 0.04, 0.04, 2.0, 8, -0.8, 5.2, 0.5, rodMat);
+    addCyl(group, 0.03, 0.03, 1.8, 8, 0.3, 5.0, -0.8, rodMat);
 
     // Dish antennas
     const dish1Mat = new THREE.MeshStandardMaterial({ map: dishTex, roughness: 0.4, metalness: 0.8, envMapIntensity: 3.0 });
     const dish1 = new THREE.Mesh(
-        new THREE.SphereGeometry(0.5, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.SphereGeometry(0.5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
         dish1Mat
     );
     dish1.position.set(1.5, 5.0, 0);
@@ -275,7 +269,7 @@ export function createStation() {
 
     const dish2Mat = new THREE.MeshStandardMaterial({ map: dishTex, roughness: 0.45, metalness: 0.75, envMapIntensity: 2.5 });
     const dish2 = new THREE.Mesh(
-        new THREE.SphereGeometry(0.4, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.SphereGeometry(0.4, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
         dish2Mat
     );
     dish2.position.set(-1.0, 4.8, 0.5);
@@ -287,23 +281,17 @@ export function createStation() {
     // Cross-bar antennas
     addBox(group, 2.0, 0.04, 0.04, 0, 6.5, 0, rodMat);
     addBox(group, 0.04, 0.04, 2.0, 0, 6.5, 0, rodMat);
-    addSphere(group, 0.18, 8, 8, 1.0, 6.5, 0, glowMat);
-    addSphere(group, 0.18, 8, 8, -1.0, 6.5, 0, glowMat);
-    addSphere(group, 0.18, 8, 8, 0, 6.5, 1.0, glowMat);
-    addSphere(group, 0.18, 8, 8, 0, 6.5, -1.0, glowMat);
+    addSphere(group, 0.15, 12, 8, 1.0, 6.5, 0, glowMat);
+    addSphere(group, 0.15, 12, 8, -1.0, 6.5, 0, glowMat);
+    addSphere(group, 0.15, 12, 8, 0, 6.5, 1.0, glowMat);
+    addSphere(group, 0.15, 12, 8, 0, 6.5, -1.0, glowMat);
 
-    // Side antennas
-    addCyl(group, 0.03, 0.03, 1.5, 4, 3.0, 2.0, 0, rodMat, 0, 0, Math.PI / 4);
-    addCyl(group, 0.03, 0.03, 1.2, 4, -3.0, 1.8, 0, rodMat, 0, 0, -Math.PI / 4);
-
-    // === SOLAR PANEL ARRAYS ===
+    // === SOLAR PANELS ===
     const panelSets = [
         { x: 5, y: 1, z: 0, ry: 0, count: 3 },
         { x: -5, y: 1, z: 0, ry: Math.PI, count: 3 },
         { x: 0, y: 1, z: 5, ry: Math.PI / 2, count: 3 },
         { x: 0, y: 1, z: -5, ry: -Math.PI / 2, count: 3 },
-        { x: 3.5, y: 1.5, z: 3.5, ry: Math.PI / 4, count: 2 },
-        { x: -3.5, y: 1.5, z: -3.5, ry: -Math.PI / 4, count: 2 },
     ];
     panelSets.forEach(function(ps) {
         for (let i = 0; i < ps.count; i++) {
@@ -312,8 +300,8 @@ export function createStation() {
             const sinP = Math.sin(ps.ry);
             const px = ps.x + cosP * offset;
             const pz = ps.z + sinP * offset;
-            addBox(group, 1.8, 0.03, 0.9, px, ps.y, pz, panelMat, ps.ry);
-            addBox(group, 1.9, 0.05, 0.95, px, ps.y - 0.02, pz, lightMat, ps.ry);
+            addBox(group, 1.6, 0.03, 0.8, px, ps.y, pz, panelMat, ps.ry);
+            addBox(group, 1.7, 0.04, 0.85, px, ps.y - 0.02, pz, lightMat, ps.ry);
         }
     });
 
@@ -322,7 +310,7 @@ export function createStation() {
         color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 2.5,
         roughness: 0.1, metalness: 0.3,
     });
-    const redLight = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), redLightMat);
+    const redLight = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 8), redLightMat);
     redLight.position.set(0, 0.9, 0);
     redLight.name = 'redLight';
     group.add(redLight);
@@ -333,7 +321,7 @@ export function createStation() {
         color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 2.5,
         roughness: 0.1, metalness: 0.3,
     });
-    const greenLight = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), greenLightMat);
+    const greenLight = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 8), greenLightMat);
     greenLight.position.set(0, -0.9, 0);
     greenLight.name = 'greenLight';
     group.add(greenLight);
@@ -346,7 +334,7 @@ export function createStation() {
         const lx = Math.cos(a) * 6;
         const lz = Math.sin(a) * 6;
         const blueLight = new THREE.Mesh(
-            new THREE.SphereGeometry(0.15, 8, 8),
+            new THREE.SphereGeometry(0.12, 12, 8),
             new THREE.MeshStandardMaterial({ color: 0x4488ff, emissive: 0x4488ff, emissiveIntensity: 3.0 })
         );
         blueLight.position.set(lx, 0.3, lz);
@@ -368,8 +356,8 @@ export function createStation() {
     dockAngles.forEach(function(a) {
         const dx = Math.cos(a) * 2.5;
         const dz = Math.sin(a) * 2.5;
-        addCyl(group, 0.3, 0.3, 0.4, 8, dx, 0, dz, darkMat, Math.PI / 2);
-        addCyl(group, 0.2, 0.2, 0.15, 8, dx + Math.cos(a) * 0.25, 0, dz + Math.sin(a) * 0.25, lightMat, Math.PI / 2);
+        addCyl(group, 0.3, 0.3, 0.4, 12, dx, 0, dz, darkMat, Math.PI / 2);
+        addCyl(group, 0.2, 0.2, 0.15, 12, dx + Math.cos(a) * 0.25, 0, dz + Math.sin(a) * 0.25, lightMat, Math.PI / 2);
     });
 
     group.position.set(80, 20, -120);
