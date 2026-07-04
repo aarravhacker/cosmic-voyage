@@ -223,12 +223,12 @@ const PlanetShader = {
 
             vec3 iceDay=vec3(0.88,0.92,0.97);
 
-            // Night colors
-            vec3 oceanNightCol=vec3(0.005,0.01,0.04);
-            vec3 landNightCol=vec3(0.008,0.015,0.005);
-            vec3 mountainNightCol=vec3(0.02,0.015,0.01);
-            vec3 desertNightCol=vec3(0.03,0.02,0.01);
-            vec3 iceNight=vec3(0.05,0.07,0.12);
+            // Night colors — brighter with deep blue tint
+            vec3 oceanNightCol=vec3(0.01,0.02,0.06);
+            vec3 landNightCol=vec3(0.015,0.025,0.012);
+            vec3 mountainNightCol=vec3(0.03,0.025,0.02);
+            vec3 desertNightCol=vec3(0.04,0.03,0.015);
+            vec3 iceNight=vec3(0.08,0.10,0.16);
 
             // Compose day colors
             vec3 dayCol=mix(oceanDay,landDay,isLand);
@@ -258,8 +258,8 @@ const PlanetShader = {
             vec3 rayleighCol=mix(rayleighOrange,rayleighBlue,rayleighSun);
             col+=rayleighCol*rayleigh*rayleighSun*0.25;
 
-            float rimNight=smoothstep(0.0,-0.3,sunDot);
-            col+=vec3(0.05,0.1,0.25)*pow(viewAngle,4.0)*rimNight*0.3;
+            float rimNight=smoothstep(0.0,-0.4,sunDot);
+            col+=vec3(0.08,0.15,0.35)*pow(viewAngle,3.0)*rimNight*0.5;
 
             // === CITY LIGHTS ===
             vec2 noiseUV=uv*40.0+50.0;
@@ -277,10 +277,10 @@ const PlanetShader = {
             float highway=smoothstep(0.48,0.52,fbm(uv*30.0+90.0))*isLand*0.15;
             cityDensity+=highway*cityCluster;
 
-            float nightLights=smoothstep(0.1,-0.2,sunDot);
+            float nightLights=smoothstep(0.15,-0.25,sunDot);
             float cityFlicker=0.85+sin(cityNoise*50.0+cityNoise2*30.0)*0.15;
-            col+=vec3(1.0,0.82,0.5)*cityDensity*nightLights*cityFlicker*0.9;
-            col+=vec3(0.6,0.8,1.0)*cityDensity*nightLights*0.1;
+            col+=vec3(1.0,0.82,0.5)*cityDensity*nightLights*cityFlicker*1.2;
+            col+=vec3(0.6,0.8,1.0)*cityDensity*nightLights*0.15;
 
             // === CLOUDS ===
             float cloudBase=warpedFBM(uv*4.0+vec2(uTime*0.015,0.0));
