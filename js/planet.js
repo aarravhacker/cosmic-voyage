@@ -69,8 +69,42 @@ const PlanetShader = {
             return v;
         }
 
+        float fbm3(vec2 p){
+            float v=0.0;
+            float a=0.5;
+            vec2 shift=vec2(100.0);
+            for(int i=0;i<3;i++){
+                v+=a*snoise(p);
+                p=p*2.0+shift;
+                a*=0.5;
+            }
+            return v;
+        }
+
+        // Domain warped FBM for irregular coastlines
+        float warpedFBM(vec2 p){
+            float q1=fbm3(p);
+            float q2=fbm3(p+vec2(5.2,1.3));
+            float q3=fbm3(p+vec2(q1*0.5,q2*0.5)+vec2(1.7,9.2));
+            return fbm(p+vec2(q1,q2)*0.4+q3*0.2);
+        }
+
+        // Ridged noise for sharp mountain ridges
+        float ridgedFBM(vec2 p){
+            float v=0.0;
+            float a=0.5;
+            for(int i=0;i<5;i++){
+                float n=1.0-abs(snoise(p));
+                n=n*n;
+                v+=n*a;
+                p=p*2.0+vec2(100.0);
+                a*=0.5;
+            }
+            return v;
+        }
+
         float terrainHeight(vec2 p){
-            float continent=fbm(p*3.0+5.0);
+            float continent=warpedFBM(p*2.5+5.0);
             float detail=fbm(p*8.0+20.0);
             float micro=fbm(p*24.0+50.0);
             float land=continent*0.6+detail*0.3+micro*0.1;
@@ -103,7 +137,8 @@ const PlanetShader = {
             float sunDot=dot(blendedN,L);
             float dayFactor=smoothstep(-0.1,0.4,sunDot);
 
-            float continent=fbm(uv*3.0+5.0);
+            // === TERRAIN ===
+            float continent=warpedFBM(uv*2.5+5.0);
             float detail=fbm(uv*8.0+20.0);
             float micro=fbm(uv*24.0+50.0);
 
@@ -111,56 +146,97 @@ const PlanetShader = {
             land=land*0.5+0.5;
             float isLand=smoothstep(0.44,0.56,land);
 
+            // Coastal detail — irregular shoreline
+            float coastalNoise=fbm(uv*20.0+30.0);
+            float coastalDetail=smoothstep(0.43,0.57,land)*smoothstep(0.57,0.43,land);
+            isLand+=coastalDetail*coastalNoise*0.15;
+            isLand=clamp(isLand,0.0,1.0);
+
+            // Shallow water
             float oceanDetail=fbm(uv*10.0+30.0);
             float shallow=smoothstep(0.42,0.52,land)*smoothstep(0.58,0.48,land);
             float isShallow=shallow*smoothstep(0.45,0.55,oceanDetail);
 
-            float mountains=fbm(uv*16.0+20.0);
-            float isMountain=smoothstep(0.56,0.68,land)*smoothstep(0.45,0.55,mountains);
+            // === MOUNTAINS (ridged noise) ===
+            float mountainRidge=ridgedFBM(uv*6.0+20.0);
+            float mountainHeight=smoothstep(0.56,0.72,land);
+            float isMountain=mountainHeight*smoothstep(0.3,0.7,mountainRidge);
 
-            float peaks=fbm(uv*32.0+40.0);
-            float isPeak=isMountain*smoothstep(0.6,0.75,peaks);
+            // Valley carving — erosion channels
+            float valleyNoise=ridgedFBM(uv*10.0+40.0);
+            float valley=smoothstep(0.6,0.4,valleyNoise)*isMountain*0.3;
+            isMountain-=valley;
 
+            // Snow caps
+            float peaks=ridgedFBM(uv*12.0+40.0);
+            float isPeak=isMountain*smoothstep(0.55,0.75,peaks);
+
+            // === LATITUDE ===
             float lat=abs(uv.y-0.5)*2.0;
             float iceCap=smoothstep(0.82,0.92,lat);
             float iceEdge=smoothstep(0.78,0.85,lat)*smoothstep(0.95,0.88,lat);
-            iceCap+=iceEdge*0.3*smoothstep(0.3,0.7,fbm(uv*6.0+100.0));
+            iceCap+=iceEdge*0.3*smoothstep(0.3,0.7,warpedFBM(uv*4.0+100.0));
             iceCap=clamp(iceCap,0.0,1.0);
 
             float desert=smoothstep(0.25,0.35,lat)*smoothstep(0.45,0.35,lat);
             desert*=smoothstep(0.48,0.55,land)*smoothstep(0.58,0.50,land);
             desert*=0.3;
 
-            vec3 oceanDeep=vec3(0.03,0.12,0.35);
-            vec3 oceanShallow=vec3(0.08,0.28,0.52);
-            vec3 oceanDay=mix(oceanDeep,oceanShallow,isShallow);
+            // === COLORS ===
+            // Ocean with depth variation
+            vec3 oceanDeep=vec3(0.02,0.08,0.28);
+            vec3 oceanMid=vec3(0.04,0.15,0.40);
+            vec3 oceanShallowCol=vec3(0.08,0.28,0.52);
+            float depth=fbm3(uv*15.0+30.0)*0.5+0.5;
+            vec3 oceanDay=mix(oceanDeep,oceanMid,depth*0.6);
+            oceanDay=mix(oceanDay,oceanShallowCol,isShallow);
 
-            vec3 landGreen=vec3(0.10,0.26,0.07);
-            vec3 landForest=vec3(0.05,0.17,0.04);
+            // Land with biome variation
+            float biomeNoise=warpedFBM(uv*5.0+60.0);
+            vec3 landGreen=vec3(0.08,0.22,0.05);
+            vec3 landForest=vec3(0.04,0.14,0.03);
+            vec3 landSavanna=vec3(0.18,0.20,0.06);
+            vec3 landTropical=vec3(0.06,0.18,0.08);
+
             vec3 landDay=mix(landGreen,landForest,smoothstep(0.5,0.6,land));
+            landDay=mix(landDay,landSavanna,smoothstep(0.3,0.5,biomeNoise)*smoothstep(0.4,0.6,land));
+            landDay=mix(landDay,landTropical,smoothstep(0.6,0.8,biomeNoise)*(1.0-desert));
 
+            // Add subtle brown/ochre patches on land
+            float earthPatch=fbm(uv*12.0+70.0);
+            vec3 earthBrown=vec3(0.22,0.16,0.08);
+            landDay=mix(landDay,earthBrown,smoothstep(0.5,0.7,earthPatch)*0.2*isLand);
+
+            // Desert
             vec3 desertDay=vec3(0.55,0.45,0.28);
+            vec3 desertDune=vec3(0.62,0.52,0.32);
+            desertDay=mix(desertDay,desertDune,fbm(uv*20.0+80.0)*0.5+0.5);
 
-            vec3 mountainRock=vec3(0.45,0.35,0.22);
-            vec3 mountainSnow=vec3(0.88,0.9,0.94);
-            vec3 mountainDay=mix(mountainRock,mountainSnow,smoothstep(0.6,0.75,mountains));
+            // Mountains
+            vec3 mountainRock=vec3(0.38,0.30,0.20);
+            vec3 mountainDark=vec3(0.25,0.20,0.14);
+            vec3 mountainDay=mix(mountainRock,mountainDark,ridgedFBM(uv*14.0+25.0));
+            mountainDay=mix(mountainDay,vec3(0.85,0.88,0.92),smoothstep(0.55,0.72,mountainRidge)*0.6);
 
             vec3 peakSnow=vec3(0.92,0.94,0.97);
             mountainDay=mix(mountainDay,peakSnow,isPeak*0.8);
 
             vec3 iceDay=vec3(0.88,0.92,0.97);
 
+            // Night colors
             vec3 oceanNightCol=vec3(0.005,0.01,0.04);
             vec3 landNightCol=vec3(0.008,0.015,0.005);
             vec3 mountainNightCol=vec3(0.02,0.015,0.01);
             vec3 desertNightCol=vec3(0.03,0.02,0.01);
             vec3 iceNight=vec3(0.05,0.07,0.12);
 
+            // Compose day colors
             vec3 dayCol=mix(oceanDay,landDay,isLand);
             dayCol=mix(dayCol,desertDay,desert);
             dayCol=mix(dayCol,mountainDay,isMountain);
             dayCol=mix(dayCol,iceDay,iceCap);
 
+            // Compose night colors
             vec3 nightCol=mix(oceanNightCol,landNightCol,isLand);
             nightCol=mix(nightCol,desertNightCol,desert);
             nightCol=mix(nightCol,mountainNightCol,isMountain);
@@ -168,10 +244,12 @@ const PlanetShader = {
 
             vec3 col=mix(nightCol,dayCol,dayFactor);
 
+            // === TERMINATOR ===
             float terminator=smoothstep(-0.1,0.15,sunDot);
             float terminatorWarm=exp(-abs(sunDot-0.05)*20.0)*0.3;
             col+=vec3(0.8,0.3,0.05)*terminatorWarm*terminator;
 
+            // === ATMOSPHERE ===
             float viewAngle=1.0-max(dot(V,blendedN),0.0);
             float rayleigh=pow(viewAngle,2.5);
             float rayleighSun=smoothstep(-0.2,0.3,sunDot);
@@ -183,29 +261,44 @@ const PlanetShader = {
             float rimNight=smoothstep(0.0,-0.3,sunDot);
             col+=vec3(0.05,0.1,0.25)*pow(viewAngle,4.0)*rimNight*0.3;
 
+            // === CITY LIGHTS ===
             vec2 noiseUV=uv*40.0+50.0;
             float cityNoise=snoise(noiseUV);
             float cityNoise2=snoise(noiseUV*2.5+7.0);
             float cityCluster=smoothstep(0.3,0.6,cityNoise)*smoothstep(0.2,0.5,cityNoise2);
+
+            // Cities cluster along coastlines
             float coastalProximity=smoothstep(0.56,0.50,land)*smoothstep(0.44,0.50,land);
-            float cityDensity=cityCluster*isLand*coastalProximity;
-            cityDensity+=cityCluster*isLand*smoothstep(0.3,0.5,land)*0.4;
+            // And inland population centers
+            float inlandPop=smoothstep(0.52,0.62,land)*smoothstep(0.68,0.58,land)*0.5;
+            float cityDensity=cityCluster*isLand*(coastalProximity+inlandPop);
+
+            // Highway connections between clusters
+            float highway=smoothstep(0.48,0.52,fbm(uv*30.0+90.0))*isLand*0.15;
+            cityDensity+=highway*cityCluster;
+
             float nightLights=smoothstep(0.1,-0.2,sunDot);
             float cityFlicker=0.85+sin(cityNoise*50.0+cityNoise2*30.0)*0.15;
             col+=vec3(1.0,0.82,0.5)*cityDensity*nightLights*cityFlicker*0.9;
             col+=vec3(0.6,0.8,1.0)*cityDensity*nightLights*0.1;
 
-            float cloudBase=fbm(uv*5.0+vec2(uTime*0.015,0.0));
-            float cloudDetail=fbm(uv*12.0+vec2(uTime*0.02,50.0));
+            // === CLOUDS ===
+            float cloudBase=warpedFBM(uv*4.0+vec2(uTime*0.015,0.0));
+            float cloudDetail=fbm(uv*10.0+vec2(uTime*0.02,50.0));
             float cloud=cloudBase*0.7+cloudDetail*0.3;
             cloud=smoothstep(0.35,0.65,cloud);
 
+            // Storm systems
             float stormX=uv.x*6.28+uTime*0.008;
             float stormY=uv.y*3.14;
             float stormBand=sin(stormY*3.0)*0.3+0.7;
-            float stormVortex=fbm(vec2(stormX*stormBand,stormY*2.0)+uTime*0.01);
+            float stormVortex=warpedFBM(vec2(stormX*stormBand,stormY*2.0)+uTime*0.01);
             float storm=smoothstep(0.55,0.75,stormVortex)*0.4;
             cloud=clamp(cloud+storm,0.0,1.0);
+
+            // Cloud shadows on surface
+            float cloudShadow=mix(1.0,0.7,cloud*0.4);
+            col*=cloudShadow;
 
             float cloudBright=smoothstep(-0.1,0.4,sunDot);
             vec3 cloudDayCol=vec3(0.95,0.96,0.98);
@@ -217,10 +310,12 @@ const PlanetShader = {
 
             col=mix(col,cloudCol,cloud*0.55);
 
+            // === OCEAN SPECULAR ===
             float isOcean=1.0-isLand;
             float sunSpec=pow(max(dot(reflect(-L,blendedN),V),0.0),64.0);
             col+=vec3(1.0,0.97,0.9)*sunSpec*dayFactor*isOcean*0.35;
 
+            // === TERMINATOR GLOW ===
             float terminatorGlow=exp(-abs(sunDot)*6.0)*0.12;
             col+=vec3(1.0,0.4,0.1)*terminatorGlow;
 
